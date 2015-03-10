@@ -23,6 +23,7 @@ parameters:
 
   swarm_token:
     type: string
+    default: dea5bd48e16224dbe40d076c55c4ed45
     description: identifier of swarm cluster to build
 
   #
@@ -43,7 +44,7 @@ parameters:
     description: address of a dns nameserver reachable in your environment
     default: 8.8.8.8
 
-  number_of_nodes:
+  number_of_minions:
     type: string
     description: how many swarm nodes to spawn
     default: 1
@@ -244,7 +245,7 @@ resources:
     depends_on:
       - extrouter_inside
     properties:
-      count: {get_param: number_of_nodes}
+      count: {get_param: number_of_minions}
       resource_def:
         type: swarmnode.yaml
         properties:
@@ -258,11 +259,11 @@ resources:
 
 outputs:
 
-  swarm_manager:
+  kube_master:
     value: {get_attr: [swarm_manager_floating, floating_ip_address]}
 
-  swarm_nodes:
+  kube_minions:
     value: {get_attr: [swarm_nodes, swarm_node_ip]}
 
-  swarm_nodes_external:
+  kube_minions_external:
     value: {get_attr: [swarm_nodes, swarm_node_external_ip]}

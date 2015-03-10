@@ -23,20 +23,7 @@ from magnum.common import urlfetch
 from magnum import objects
 
 
-class K8sPatchType(types.JsonPatchType):
-
-    @staticmethod
-    def internal_attrs():
-        defaults = types.JsonPatchType.internal_attrs()
-        return defaults + ['/name', '/labels']
-
-    @staticmethod
-    def mandatory_attrs():
-        return ['/bay_uuid']
-
-
-class K8sResourceBase(base.APIBase):
-
+class BayResourceBase(base.APIBase):
     _bay_uuid = None
 
     def _get_bay_uuid(self):
@@ -58,6 +45,22 @@ class K8sResourceBase(base.APIBase):
     bay_uuid = wsme.wsproperty(types.uuid, _get_bay_uuid, _set_bay_uuid,
                                mandatory=True)
     """Unique UUID of the bay this runs on"""
+
+
+class K8sPatchType(types.JsonPatchType):
+
+    @staticmethod
+    def internal_attrs():
+        defaults = types.JsonPatchType.internal_attrs()
+        return defaults + ['/name', '/labels']
+
+    @staticmethod
+    def mandatory_attrs():
+        return ['/bay_uuid']
+
+
+class K8sResourceBase(BayResourceBase):
+
 
     manifest_url = wtypes.text
     """URL for manifest file to create the k8s resource"""

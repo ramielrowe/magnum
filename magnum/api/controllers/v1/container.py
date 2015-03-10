@@ -23,6 +23,7 @@ import wsmeext.pecan as wsme_pecan
 
 from magnum.api.controllers import base
 from magnum.api.controllers import link
+from magnum.api.controllers.v1 import base as v1_base
 from magnum.api.controllers.v1 import collection
 from magnum.api.controllers.v1 import types
 from magnum.api.controllers.v1 import utils as api_utils
@@ -39,7 +40,7 @@ class ContainerPatchType(types.JsonPatchType):
     pass
 
 
-class Container(base.APIBase):
+class Container(v1_base.BayResourceBase):
     """API representation of a container.
 
     This class enforces type checking and value constraints, and converts
@@ -92,6 +93,7 @@ class Container(base.APIBase):
         sample = cls(uuid='27e3153e-d5bf-4b7e-b517-fb518e17f34c',
                      name='example',
                      image_id='ubuntu',
+                     bay_uuid='8f5db443-bbe0-4341-8938-99c52e7d1897',
                      created_at=datetime.datetime.utcnow(),
                      updated_at=datetime.datetime.utcnow())
         return cls._convert_with_links(sample, 'http://localhost:9511', expand)

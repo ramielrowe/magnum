@@ -168,7 +168,7 @@ class Connection(api.Connection):
 
     def get_bay_by_uuid(self, context, bay_uuid):
         query = model_query(models.Bay)
-        query = self._add_tenant_filters(context, query)
+        #query = self._add_tenant_filters(context, query)
         query = query.filter_by(uuid=bay_uuid)
         try:
             return query.one()

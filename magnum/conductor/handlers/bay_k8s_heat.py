@@ -30,8 +30,8 @@ from magnum.openstack.common import loopingcall
 
 k8s_heat_opts = [
     cfg.StrOpt('template_path',
-               default=paths.basedir_def('templates/heat-kubernetes/'
-                                         'kubecluster.yaml'),
+               default=paths.basedir_def('templates/docker-swarm/'
+                                         'swarm.yaml'),
                help=_(
                    'Location of template to build a k8s cluster. ')),
     cfg.IntOpt('max_attempts',

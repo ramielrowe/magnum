@@ -17,6 +17,7 @@ from oslo_config import cfg
 
 from magnum.common import docker_utils
 from magnum.conductor.handlers.common import docker_client
+from magnum import objects
 from magnum.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
@@ -50,6 +51,9 @@ docker_opts = [
 
 CONF.register_opts(docker_opts, 'docker')
 
+def _swarm_address(context, obj):
+    bay_uuid = obj.bay_uuid
+    return objects.Bay.get_by_uuid(context, bay_uuid).master_address
 
 class Handler(object):
 
@@ -80,14 +84,16 @@ class Handler(object):
     # Container operations
 
     def container_create(self, context, name, container_uuid, container):
+        url = 'tcp://%s:2376' % _swarm_address(context, container)
+        docker = docker_client.DockerHTTPClient(url, CONF.docker.docker_remote_api_version)
         image_id = container.image_id
         LOG.debug('Creating container with image %s name %s'
                   % (image_id, name))
         try:
             image_repo, image_tag = docker_utils.parse_docker_image(image_id)
-            self.docker.pull(image_repo, tag=image_tag)
-            self.docker.inspect_image(self._encode_utf8(container.image_id))
-            self.docker.create_container(image_id, name=name,
+            #self.docker.pull(image_repo, tag=image_tag)
+            #self.docker.inspect_image(self._encode_utf8(container.image_id))
+            docker.create_container(image_id, name=name,
                                          hostname=container_uuid)
             return container
         except errors.APIError as api_error:
