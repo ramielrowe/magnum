@@ -125,8 +125,8 @@ class Bay(Base):
     name = Column(String(255))
     baymodel_id = Column(String(255))
     stack_id = Column(String(255))
-    master_address = Column(String(255))
-    minions_address = Column(JSONEncodedList)
+    api_address = Column(String(255))
+    node_addresses = Column(JSONEncodedList)
     node_count = Column(Integer())
     status = Column(String(20), nullable=True)
 

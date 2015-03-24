@@ -126,10 +126,10 @@ class Connection(api.Connection):
             query = query.filter_by(node_count=filters['node_count'])
         if 'stack_id' in filters:
             query = query.filter_by(stack_id=filters['stack_id'])
-        if 'master_address' in filters:
-            query = query.filter_by(master_address=filters['master_address'])
-        if 'minions_address' in filters:
-            query = query.filter_by(minions_address=filters['minions_address'])
+        if 'api_address' in filters:
+            query = query.filter_by(api_address=filters['api_address'])
+        if 'node_addresses' in filters:
+            query = query.filter_by(node_addresses=filters['node_addresses'])
         if 'project_id' in filters:
             query = query.filter_by(project_id=filters['project_id'])
         if 'user_id' in filters:

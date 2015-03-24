@@ -244,14 +244,14 @@ class HeatPoller(object):
         self.attempts = 0
 
     def poll_and_check(self):
-        # TODO(yuanying): temporary implementation to update master_address,
-        # minions_address and bay status
+        # TODO(yuanying): temporary implementation to update api_address,
+        # node_addresses and bay status
         stack = self.openstack_client.heat().stacks.get(self.bay.stack_id)
         self.attempts += 1
         if (stack.stack_status in ['CREATE_COMPLETE', 'UPDATE_COMPLETE']):
             parsed_outputs = _parse_stack_outputs(stack.outputs)
-            self.bay.master_address = parsed_outputs["kube_master"]
-            self.bay.minions_address = parsed_outputs["kube_minions_external"]
+            self.bay.api_address = parsed_outputs["kube_master"]
+            self.bay.node_addresses = parsed_outputs["kube_minions_external"]
             self.bay.status = stack.stack_status
             self.bay.save()
             raise loopingcall.LoopingCallDone()
