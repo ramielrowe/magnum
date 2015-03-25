@@ -423,3 +423,19 @@ class KeystoneFailure(MagnumException):
 class CatalogNotFound(MagnumException):
     message = _("Service type %(service_type)s with endpoint type "
                 "%(endpoint_type)s not found in keystone service catalog.")
+
+
+class TemplateDefinitionException(MagnumException):
+    message = _("Bay definition failed.")
+
+
+class BayTypeNotSupported(TemplateDefinitionException):
+    message = _("Bay type (%(platform)s, %(os)s, %(coe)s) not supported.")
+
+
+class BayTypeNotEnabled(TemplateDefinitionException):
+    message = _("Bay type (%(platform)s, %(os)s, %(coe)s) not enabled.")
+
+
+class RequiredParameterNotProvided(TemplateDefinitionException):
+    message = _("Required parameter %(heat_param)s not provided.")
