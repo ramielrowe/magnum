@@ -58,8 +58,36 @@ class TestBayK8sHeat(base.TestCase):
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
+
+        expected = {
+            'ssh_key_name': 'keypair_id',
+            'external_network_id': 'external_network_id',
+            'dns_nameserver': 'dns_nameserver',
+            'server_image': 'image_id',
+            'server_flavor': 'flavor_id',
+            'master_flavor': 'master_flavor_id',
+            'number_of_minions': '1',
+            'fixed_network': 'private',
+            'docker_volume_size': 20,
+        }
+        self.assertEqual(expected, bay_definition)
+
+    @patch('magnum.objects.BayModel.get_by_uuid')
+    def test_extract_bay_definition_coreos(self,
+                                    mock_objects_baymodel_get_by_uuid):
+        cfg.CONF.set_override('cluster_type',
+                              'coreos',
+                              group='k8s_heat')
+        baymodel = objects.BayModel(self.context, **self.baymodel_dict)
+        mock_objects_baymodel_get_by_uuid.return_value = baymodel
+        bay = objects.Bay(self.context, **self.bay_dict)
+
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -73,6 +101,8 @@ class TestBayK8sHeat(base.TestCase):
             'docker_volume_size': 20,
             'ssh_authorized_key': 'ssh_authorized_key',
         }
+        self.assertIn('token', bay_definition)
+        del bay_definition['token']
         self.assertEqual(expected, bay_definition)
 
     @patch('requests.get')
@@ -83,17 +113,18 @@ class TestBayK8sHeat(base.TestCase):
         cfg.CONF.set_override('cluster_type',
                               'coreos',
                               group='k8s_heat')
-        cfg.CONF.set_override('discovery_token_url',
+        cfg.CONF.set_override('coreos_discovery_token_url',
                               'http://tokentest',
-                              group='k8s_heat')
+                              group='bay')
         mock_req = mock.MagicMock(text='/h1/h2/h3')
         reqget.return_value = mock_req
         baymodel = objects.BayModel(self.context, **self.baymodel_dict)
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -118,17 +149,18 @@ class TestBayK8sHeat(base.TestCase):
         cfg.CONF.set_override('cluster_type',
                               'coreos',
                               group='k8s_heat')
-        cfg.CONF.set_override('discovery_token_url',
+        cfg.CONF.set_override('coreos_discovery_token_url',
                               None,
-                              group='k8s_heat')
+                              group='bay')
         mock_uuid.return_value = mock.MagicMock(
             hex='ba3d1866282848ddbedc76112110c208')
         baymodel = objects.BayModel(self.context, **self.baymodel_dict)
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -154,8 +186,9 @@ class TestBayK8sHeat(base.TestCase):
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -165,8 +198,7 @@ class TestBayK8sHeat(base.TestCase):
             'master_flavor': 'master_flavor_id',
             'number_of_minions': '1',
             'fixed_network': 'private',
-            'docker_volume_size': 20,
-            'ssh_authorized_key': 'ssh_authorized_key',
+            'docker_volume_size': 20
         }
         self.assertEqual(expected, bay_definition)
 
@@ -179,8 +211,9 @@ class TestBayK8sHeat(base.TestCase):
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -190,8 +223,7 @@ class TestBayK8sHeat(base.TestCase):
             'master_flavor': 'master_flavor_id',
             'number_of_minions': '1',
             'fixed_network': 'private',
-            'docker_volume_size': 20,
-            'ssh_authorized_key': 'ssh_authorized_key',
+            'docker_volume_size': 20
         }
         self.assertEqual(expected, bay_definition)
 
@@ -204,8 +236,9 @@ class TestBayK8sHeat(base.TestCase):
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -216,7 +249,6 @@ class TestBayK8sHeat(base.TestCase):
             'number_of_minions': '1',
             'fixed_network': 'private',
             'docker_volume_size': 20,
-            'ssh_authorized_key': 'ssh_authorized_key',
         }
         self.assertEqual(expected, bay_definition)
 
@@ -229,8 +261,9 @@ class TestBayK8sHeat(base.TestCase):
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -241,7 +274,6 @@ class TestBayK8sHeat(base.TestCase):
             'fixed_network': 'private',
             'master_flavor': 'master_flavor_id',
             'number_of_minions': '1',
-            'ssh_authorized_key': 'ssh_authorized_key',
         }
         self.assertEqual(expected, bay_definition)
 
@@ -254,8 +286,9 @@ class TestBayK8sHeat(base.TestCase):
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -266,7 +299,6 @@ class TestBayK8sHeat(base.TestCase):
             'server_flavor': 'flavor_id',
             'number_of_minions': '1',
             'docker_volume_size': 20,
-            'ssh_authorized_key': 'ssh_authorized_key',
         }
         self.assertEqual(expected, bay_definition)
 
@@ -279,8 +311,9 @@ class TestBayK8sHeat(base.TestCase):
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -291,21 +324,24 @@ class TestBayK8sHeat(base.TestCase):
             'number_of_minions': '1',
             'fixed_network': 'private',
             'docker_volume_size': 20,
-            'ssh_authorized_key': 'ssh_authorized_key',
         }
         self.assertEqual(expected, bay_definition)
 
     @patch('magnum.objects.BayModel.get_by_uuid')
     def test_extract_bay_definition_without_ssh_authorized_key(self,
                                         mock_objects_baymodel_get_by_uuid):
+        cfg.CONF.set_override('cluster_type',
+                              'coreos',
+                              group='k8s_heat')
         baymodel_dict = self.baymodel_dict
         baymodel_dict['ssh_authorized_key'] = None
         baymodel = objects.BayModel(self.context, **baymodel_dict)
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -318,6 +354,8 @@ class TestBayK8sHeat(base.TestCase):
             'fixed_network': 'private',
             'docker_volume_size': 20,
         }
+        self.assertIn('token', bay_definition)
+        del bay_definition['token']
         self.assertEqual(expected, bay_definition)
 
     @patch('magnum.objects.BayModel.get_by_uuid')
@@ -329,8 +367,9 @@ class TestBayK8sHeat(base.TestCase):
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **self.bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -342,7 +381,6 @@ class TestBayK8sHeat(base.TestCase):
             'number_of_minions': '1',
             'fixed_network': 'private',
             'docker_volume_size': 20,
-            'ssh_authorized_key': 'ssh_authorized_key',
         }
         self.assertEqual(expected, bay_definition)
 
@@ -355,8 +393,9 @@ class TestBayK8sHeat(base.TestCase):
         mock_objects_baymodel_get_by_uuid.return_value = baymodel
         bay = objects.Bay(self.context, **bay_dict)
 
-        bay_definition = bay_k8s_heat._extract_bay_definition(self.context,
-                                                              bay)
+        (template_path,
+         bay_definition) = bay_k8s_heat._extract_bay_definition(self.context,
+                                                                bay)
 
         expected = {
             'ssh_key_name': 'keypair_id',
@@ -367,7 +406,6 @@ class TestBayK8sHeat(base.TestCase):
             'fixed_network': 'private',
             'master_flavor': 'master_flavor_id',
             'docker_volume_size': 20,
-            'ssh_authorized_key': 'ssh_authorized_key',
         }
         self.assertEqual(expected, bay_definition)
 
@@ -376,9 +414,9 @@ class TestBayK8sHeat(base.TestCase):
         expected_minion_address = ['minion', 'address']
         expected_minion_external_address = ['ex_minion', 'address']
         expected_return_value = {
-            'kube_master': expected_api_address,
+            'api_address': expected_api_address,
             'kube_minions': expected_minion_address,
-            'kube_minions_external': expected_minion_external_address
+            'minions_address': expected_minion_external_address
         }
 
         outputs = [
@@ -398,8 +436,10 @@ class TestBayK8sHeat(base.TestCase):
              "output_key": "kube_master"
            }
         ]
+        mock_stack = mock.MagicMock()
+        mock_stack.outputs = outputs
 
-        parsed_outputs = bay_k8s_heat._parse_stack_outputs(outputs)
+        parsed_outputs = bay_k8s_heat._parse_stack_outputs(mock_stack)
         self.assertEqual(expected_return_value, parsed_outputs)
 
     @patch('magnum.common.short_id.generate_id')
@@ -420,7 +460,8 @@ class TestBayK8sHeat(base.TestCase):
         mock_tpl_files.items.return_value = exptected_files
         mock_get_template_contents.return_value = [
             mock_tpl_files, expected_template_contents]
-        mock_extract_bay_definition.return_value = {}
+        mock_extract_bay_definition.return_value = ('template/path',
+                                                    {})
         mock_heat_client = mock.MagicMock()
         mock_osc = mock.MagicMock()
         mock_osc.heat.return_value = mock_heat_client
@@ -451,7 +492,8 @@ class TestBayK8sHeat(base.TestCase):
         mock_tpl_files.items.return_value = exptected_files
         mock_get_template_contents.return_value = [
             mock_tpl_files, expected_template_contents]
-        mock_extract_bay_definition.return_value = {}
+        mock_extract_bay_definition.return_value = ('template/path',
+                                                    {})
         mock_heat_client = mock.MagicMock()
         mock_osc = mock.MagicMock()
         mock_osc.heat.return_value = mock_heat_client
