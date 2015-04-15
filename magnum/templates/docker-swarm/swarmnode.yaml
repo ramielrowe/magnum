@@ -34,9 +34,9 @@ parameters:
     type: string
     description: Subnet from which to allocate fixed addresses.
 
-  swarm_token:
+  discovery_url:
     type: string
-    description: token of swarm cluster to build
+    description: url provided for node discovery
 
 resources:
 

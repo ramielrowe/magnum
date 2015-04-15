@@ -81,6 +81,9 @@ class Bay(base.APIBase):
     status = wtypes.text
     """Status of the bay from the heat stack"""
 
+    discovery_url = wtypes.text
+    """Url used for bay node discovery"""
+
     def __init__(self, **kwargs):
         super(Bay, self).__init__()
 
@@ -96,7 +99,7 @@ class Bay(base.APIBase):
     def _convert_with_links(bay, url, expand=True):
         if not expand:
             bay.unset_fields_except(['uuid', 'name', 'baymodel_id',
-                                    'node_count', 'status'])
+                                    'node_count', 'status', 'discovery_url'])
 
         bay.links = [link.Link.make_link('self', url,
                                           'bays', bay.uuid),
