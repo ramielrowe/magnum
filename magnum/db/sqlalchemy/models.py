@@ -129,6 +129,7 @@ class Bay(Base):
     node_addresses = Column(JSONEncodedList)
     node_count = Column(Integer())
     status = Column(String(20), nullable=True)
+    swarm_token = Column(String(255))
 
 
 class BayLock(Base):

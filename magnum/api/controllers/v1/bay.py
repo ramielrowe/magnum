@@ -81,6 +81,9 @@ class Bay(base.APIBase):
     status = wtypes.text
     """Status of the bay from the heat stack"""
 
+    swarm_token = wtypes.text
+    """Swarm token used for swarm backed bay"""
+
     def __init__(self, **kwargs):
         super(Bay, self).__init__()
 
@@ -96,7 +99,7 @@ class Bay(base.APIBase):
     def _convert_with_links(bay, url, expand=True):
         if not expand:
             bay.unset_fields_except(['uuid', 'name', 'baymodel_id',
-                                    'node_count', 'status'])
+                                    'node_count', 'status', 'swarm_token'])
 
         bay.links = [link.Link.make_link('self', url,
                                           'bays', bay.uuid),
@@ -118,6 +121,7 @@ class Bay(base.APIBase):
                      baymodel_id='4a96ac4b-2447-43f1-8ca6-9fd6f36d146d',
                      node_count=1,
                      status="CREATED",
+                     swarm_token='9b8f1ce1462fe88505f34ae45bbb1eda',
                      created_at=datetime.datetime.utcnow(),
                      updated_at=datetime.datetime.utcnow())
         return cls._convert_with_links(sample, 'http://localhost:9511', expand)

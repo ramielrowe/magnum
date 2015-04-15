@@ -43,6 +43,11 @@ template_def_opts = [
                deprecated_name='discovery_token_url',
                deprecated_group='k8s_heat',
                help=_('coreos discovery token url.')),
+    cfg.StrOpt('swarm_atomic_template_path',
+               default=paths.basedir_def('templates/docker-swarm/'
+                                         'swarm.yaml'),
+               help=_('Location of template to build a swarm '
+                      'cluster on atomic. ')),
     cfg.ListOpt('enabled_definitions',
                 default=['magnum_vm_atomic_k8s', 'magnum_vm_coreos_k8s'],
                 help=_('Enabled bay definition entry points. ')),
@@ -263,11 +268,20 @@ class BaseTemplateDefinition(TemplateDefinition):
         self.add_parameter('ssh_key_name',
                            baymodel_attr='keypair_id',
                            required=True)
+        self.add_parameter('external_network_id',
+                           baymodel_attr='external_network_id',
+                           required=True)
 
         self.add_parameter('server_image',
                            baymodel_attr='image_id')
         self.add_parameter('server_flavor',
                            baymodel_attr='flavor_id')
+        self.add_parameter('dns_nameserver',
+                           baymodel_attr='dns_nameserver')
+
+    @abc.abstractproperty
+    def template_path(self):
+        pass
 
 
 class AtomicK8sTemplateDefinition(BaseTemplateDefinition):
@@ -277,12 +291,6 @@ class AtomicK8sTemplateDefinition(BaseTemplateDefinition):
 
     def __init__(self):
         super(AtomicK8sTemplateDefinition, self).__init__()
-        self.add_parameter('external_network_id',
-                           baymodel_attr='external_network_id',
-                           required=True)
-
-        self.add_parameter('dns_nameserver',
-                           baymodel_attr='dns_nameserver')
         self.add_parameter('master_flavor',
                            baymodel_attr='master_flavor_id')
         self.add_parameter('fixed_network',
@@ -339,3 +347,30 @@ class CoreOSK8sTemplateDefinition(AtomicK8sTemplateDefinition):
     @property
     def template_path(self):
         return cfg.CONF.bay.k8s_coreos_template_path
+
+
+class AtomicSwarmTemplateDefinition(BaseTemplateDefinition):
+    provides = [
+        {'platform': 'vm', 'os': 'fedora-atmoic', 'coe': 'swarm'},
+    ]
+
+    def __init__(self):
+        super(AtomicSwarmTemplateDefinition, self).__init__()
+        self.add_parameter('swarm_token',
+                           bay_attr='swarm_token',
+                           required=True)
+
+        self.add_parameter('number_of_nodes',
+                           bay_attr='node_count',
+                           param_type=str)
+        self.add_parameter('fixed_network_cidr',
+                           baymodel_attr='fixed_network')
+
+        self.add_output('swarm_manager',
+                        bay_attr='api_address')
+        self.add_output('swarm_nodes_external',
+                        bay_attr='node_addresses')
+
+    @property
+    def template_path(self):
+        return cfg.CONF.bay.swarm_atomic_template_path
