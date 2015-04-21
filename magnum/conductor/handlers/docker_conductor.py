@@ -18,6 +18,7 @@ from oslo_config import cfg
 from magnum.common import docker_utils
 from magnum.common import exception
 from magnum.conductor.handlers.common import docker_client
+from magnum import objects
 from magnum.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
@@ -78,19 +79,27 @@ class Handler(object):
     def _encode_utf8(self, value):
         return unicode(value).encode('utf-8')
 
+    @staticmethod
+    def _create_docker_client(context, container):
+        bay = objects.Bay.get_by_uuid(context, container.bay_uuid)
+        tcp_url = 'tcp://%s:2376' % bay.api_address
+        return docker_client.DockerHTTPClient(tcp_url,
+                                        CONF.docker.docker_remote_api_version)
+
     # Container operations
 
     def container_create(self, context, name, container_uuid, container):
+        docker = self._create_docker_client(context, container)
         image_id = container.image_id
         LOG.debug('Creating container with image %s name %s'
                   % (image_id, name))
         try:
             image_repo, image_tag = docker_utils.parse_docker_image(image_id)
-            self.docker.pull(image_repo, tag=image_tag)
-            self.docker.inspect_image(self._encode_utf8(container.image_id))
-            self.docker.create_container(image_id, name=name,
-                                         hostname=container_uuid,
-                                         command=container.command)
+            docker.pull(image_repo, tag=image_tag)
+            docker.inspect_image(self._encode_utf8(container.image_id))
+            docker.create_container(image_id, name=name,
+                                    hostname=container_uuid,
+                                    command=container.command)
             return container
         except errors.APIError as api_error:
             raise exception.ContainerException(
