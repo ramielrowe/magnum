@@ -6,3 +6,4 @@ write_files:
     permissions: "0644"
     content: |
       WAIT_HANDLE="$WAIT_HANDLE"
+      NODE_IP="$NODE_IP"

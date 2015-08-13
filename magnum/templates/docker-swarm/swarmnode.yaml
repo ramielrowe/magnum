@@ -115,12 +115,6 @@ resources:
       group: ungrouped
       config: {get_file: fragments/write-docker-socket.yaml}
 
-  write_docker_tcp_socket:
-    type: "OS::Heat::SoftwareConfig"
-    properties:
-      group: ungrouped
-      config: {get_file: fragments/write-docker-tcp-socket.yaml}
-
   write_swarm_agent_service:
     type: "OS::Heat::SoftwareConfig"
     properties:
@@ -165,7 +159,6 @@ resources:
         - config: {get_resource: write_swarm_agent_service}
         - config: {get_resource: write_docker_service}
         - config: {get_resource: write_docker_socket}
-        - config: {get_resource: write_docker_tcp_socket}
         - config: {get_resource: enable_services}
         - config: {get_resource: cfn_signal}
 
