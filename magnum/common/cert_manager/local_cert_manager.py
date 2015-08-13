@@ -22,6 +22,7 @@ from magnum.common.cert_manager import cert_manager
 from magnum.common import exception
 from magnum.i18n import _
 from magnum.i18n import _LE
+from magnum.i18n import _LI
 from magnum.i18n import _LW
 
 
@@ -164,16 +165,14 @@ class CertManager(cert_manager.CertManager):
         try:
             with open(filename_intermediates, 'r') as int_file:
                 cert_data['intermediates'] = int_file.read()
-        except IOError as ioe:
-            LOG.error(_LE("Failed to read certificate."))
-            raise exception.CertificateStorageException(msg=ioe.message)
+        except IOError:
+            LOG.info(_LI("No intermediates for certificate %s") % cert_ref)
 
         try:
             with open(filename_pkp, 'r') as pass_file:
                 cert_data['private_key_passphrase'] = pass_file.read()
-        except IOError as ioe:
-            LOG.error(_LE("Failed to read certificate."))
-            raise exception.CertificateStorageException(msg=ioe.message)
+        except IOError:
+            LOG.info(_LI("No passphrase for certificate %s") % cert_ref)
 
         return Cert(**cert_data)
 

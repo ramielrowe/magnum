@@ -153,6 +153,9 @@ def sign(csr, issuer_name, ca_key, ca_key_password=None,
     :param skip_validation: skip csr validation if true
     :returns: generated certificate
     """
+    if isinstance(csr, unicode):
+        csr = str(csr)
+
     if not isinstance(ca_key, rsa.RSAPrivateKey):
         ca_key = serialization.load_pem_private_key(ca_key,
                                                     password=ca_key_password,

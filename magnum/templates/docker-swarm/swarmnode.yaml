@@ -57,6 +57,15 @@ parameters:
     type: string
     description: swarm master's ip address
 
+  bay_uuid:
+    type: string
+
+  user_token:
+    type: string
+
+  magnum_url:
+    type: string
+
 resources:
 
   node_wait_handle:
@@ -120,12 +129,21 @@ resources:
             "$NO_PROXY": {get_param: no_proxy}
             "$SWARM_MASTER_IP": {get_param: swarm_master_ip}
             "$NODE_IP": {get_attr: [swarm_node_eth0, fixed_ips, 0, ip_address]}
+            "$BAY_UUID": {get_param: bay_uuid}
+            "$USER_TOKEN": {get_param: user_token}
+            "$MAGNUM_URL": {get_param: magnum_url}
 
   remove_docker_key:
     type: "OS::Heat::SoftwareConfig"
     properties:
       group: ungrouped
       config: {get_file: fragments/remove-docker-key.sh}
+
+  make_cert:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config: {get_file: fragments/make-cert.sh}
 
   write_docker_service:
     type: "OS::Heat::SoftwareConfig"
@@ -138,12 +156,6 @@ resources:
     properties:
       group: ungrouped
       config: {get_file: fragments/write-docker-socket.yaml}
-
-  write_docker_tcp_socket:
-    type: "OS::Heat::SoftwareConfig"
-    properties:
-      group: ungrouped
-      config: {get_file: fragments/write-docker-tcp-socket.yaml}
 
   write_swarm_agent_service:
     type: "OS::Heat::SoftwareConfig"
@@ -195,11 +207,11 @@ resources:
         - config: {get_resource: disable_selinux}
         - config: {get_resource: remove_docker_key}
         - config: {get_resource: write_heat_params}
+        - config: {get_resource: make_cert}
         - config: {get_resource: add_proxy}
         - config: {get_resource: write_swarm_agent_service}
         - config: {get_resource: write_docker_service}
         - config: {get_resource: write_docker_socket}
-        - config: {get_resource: write_docker_tcp_socket}
         - config: {get_resource: enable_services}
         - config: {get_resource: cfn_signal}
 

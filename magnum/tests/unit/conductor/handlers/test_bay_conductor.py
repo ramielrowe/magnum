@@ -818,6 +818,12 @@ class TestBayConductorWithSwarm(base.TestCase):
             'node_count': 1,
             'discovery_url': 'token://39987da72f8386e0d0225ae8929e7cb4',
         }
+        osc_patcher = mock.patch('magnum.common.clients.OpenStackClients')
+        self.mock_osc_class = osc_patcher.start()
+        self.addCleanup(osc_patcher.stop)
+        self.mock_osc = mock.MagicMock()
+        self.mock_osc.magnum_url.return_value = 'http://127.0.0.1:9511/v1'
+        self.mock_osc_class.return_value = self.mock_osc
 
     @patch('magnum.objects.BayModel.get_by_uuid')
     def test_extract_template_definition_all_values(
@@ -842,7 +848,11 @@ class TestBayConductorWithSwarm(base.TestCase):
             'discovery_url': 'token://39987da72f8386e0d0225ae8929e7cb4',
             'http_proxy': 'http_proxy',
             'https_proxy': 'https_proxy',
-            'no_proxy': 'no_proxy'
+            'no_proxy': 'no_proxy',
+            'user_token': self.context.auth_token,
+            'bay_uuid': 'some_uuid',
+            'magnum_url': self.mock_osc.magnum_url.return_value
+
         }
         self.assertEqual(expected, definition)
 
@@ -873,7 +883,10 @@ class TestBayConductorWithSwarm(base.TestCase):
             'ssh_key_name': 'keypair_id',
             'external_network': 'external_network_id',
             'number_of_nodes': '1',
-            'discovery_url': 'test_discovery'
+            'discovery_url': 'test_discovery',
+            'user_token': self.context.auth_token,
+            'bay_uuid': 'some_uuid',
+            'magnum_url': self.mock_osc.magnum_url.return_value
         }
         self.assertEqual(expected, definition)
 
