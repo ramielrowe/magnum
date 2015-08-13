@@ -20,6 +20,7 @@ from pkg_resources import iter_entry_points
 import requests
 import six
 
+from magnum.common import clients
 from magnum.common import exception
 from magnum.common import paths
 from magnum.i18n import _
@@ -471,6 +472,9 @@ class AtomicSwarmTemplateDefinition(BaseTemplateDefinition):
 
     def __init__(self):
         super(AtomicSwarmTemplateDefinition, self).__init__()
+        self.add_parameter('bay_uuid',
+                           bay_attr='uuid',
+                           param_type=str)
         self.add_parameter('number_of_nodes',
                            bay_attr='node_count',
                            param_type=str)
@@ -479,6 +483,8 @@ class AtomicSwarmTemplateDefinition(BaseTemplateDefinition):
         self.add_parameter('external_network',
                            baymodel_attr='external_network_id',
                            required=True)
+        self.add_parameter('insecure',
+                           baymodel_attr='insecure')
         self.add_output('swarm_master',
                         bay_attr='api_address')
         self.add_output('swarm_nodes_external',
@@ -509,6 +515,12 @@ class AtomicSwarmTemplateDefinition(BaseTemplateDefinition):
     def get_params(self, context, baymodel, bay, **kwargs):
         extra_params = kwargs.pop('extra_params', {})
         extra_params['discovery_url'] = self.get_discovery_url(bay)
+        # HACK(apmelton) - This uses the user's bearer token, ideally
+        # it should be replaced with an actual trust token with only
+        # access to do what the template needs it to do.
+        extra_params['user_token'] = context.auth_token
+        osc = clients.OpenStackClients(context)
+        extra_params['magnum_url'] = osc.magnum_url()
 
         return super(AtomicSwarmTemplateDefinition,
                      self).get_params(context, baymodel, bay,
