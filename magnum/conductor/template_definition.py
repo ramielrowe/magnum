@@ -20,6 +20,7 @@ from pkg_resources import iter_entry_points
 import requests
 import six
 
+from magnum.common import clients
 from magnum.common import exception
 from magnum.common import paths
 from magnum.i18n import _
@@ -464,6 +465,9 @@ class AtomicSwarmTemplateDefinition(BaseTemplateDefinition):
 
     def __init__(self):
         super(AtomicSwarmTemplateDefinition, self).__init__()
+        self.add_parameter('bay_uuid',
+                           bay_attr='uuid',
+                           param_type=str)
         self.add_parameter('number_of_nodes',
                            bay_attr='node_count',
                            param_type=str)
@@ -502,6 +506,9 @@ class AtomicSwarmTemplateDefinition(BaseTemplateDefinition):
     def get_params(self, context, baymodel, bay, **kwargs):
         extra_params = kwargs.pop('extra_params', {})
         extra_params['discovery_url'] = self.get_discovery_url(bay)
+        extra_params['user_token'] = context.auth_token
+        osc = clients.OpenStackClients(context)
+        extra_params['magnum_url'] = osc.magnum_url()
 
         return super(AtomicSwarmTemplateDefinition,
                      self).get_params(context, baymodel, bay,

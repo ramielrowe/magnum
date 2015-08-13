@@ -23,6 +23,7 @@ from magnum.common.cert_manager import cert_manager
 from magnum.common import exception
 from magnum.i18n import _
 from magnum.i18n import _LE
+from magnum.i18n import _LI
 from magnum.i18n import _LW
 
 

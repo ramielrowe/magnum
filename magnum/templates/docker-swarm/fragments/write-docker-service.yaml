@@ -19,6 +19,12 @@ write_files:
       EnvironmentFile=-/etc/sysconfig/docker-storage
       EnvironmentFile=-/etc/sysconfig/docker-network
       ExecStart=/usr/bin/docker -d -H fd:// \
+                -H tcp://0.0.0.0:2375 \
+                --tls \
+                --tlsverify \
+                --tlscacert="/etc/docker/ca.crt" \
+                --tlskey="/etc/docker/server.key" \
+                --tlscert="/etc/docker/server.crt" \
                 $OPTIONS \
                 $DOCKER_STORAGE_OPTIONS \
                 $DOCKER_NETWORK_OPTIONS \
