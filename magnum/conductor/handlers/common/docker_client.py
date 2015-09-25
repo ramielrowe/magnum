@@ -28,21 +28,20 @@ CONF = cfg.CONF
 class DockerHTTPClient(client.Client):
     def __init__(self, url='unix://var/run/docker.sock',
                  ver=DEFAULT_DOCKER_REMOTE_API_VERSION,
-                 timeout=DEFAULT_DOCKER_TIMEOUT):
-        if (CONF.docker.cert_file or
-                CONF.docker.key_file):
-            client_cert = (CONF.docker.cert_file, CONF.docker.key_file)
-        else:
-            client_cert = None
-        if (CONF.docker.ca_file or
-                CONF.docker.api_insecure or
-                client_cert):
+                 timeout=DEFAULT_DOCKER_TIMEOUT,
+                 ca_cert=None,
+                 client_key=None,
+                 client_cert=None):
+
+        if ca_cert and client_key and client_cert:
             ssl_config = tls.TLSConfig(
-                client_cert=client_cert,
-                ca_cert=CONF.docker.ca_file,
-                verify=CONF.docker.api_insecure)
+                client_cert=(client_cert, client_key),
+                verify=ca_cert,
+                assert_hostname=False,
+            )
         else:
             ssl_config = False
+
         super(DockerHTTPClient, self).__init__(
             base_url=url,
             version=ver,
@@ -77,4 +76,4 @@ class DockerHTTPClient(client.Client):
         self._raise_for_status(res)
 
     def get_container_logs(self, docker_id):
-        return self.attach(docker_id, 1, 1, 0, 1)
+        return self.logs(docker_id)
